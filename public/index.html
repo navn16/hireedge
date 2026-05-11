@@ -1226,6 +1226,16 @@ function goToTab(name) {
   if (tabBtn) {
     switchTab(name, tabBtn);
     document.getElementById('generator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (name === 'interview') {
+      const jobdesc = document.getElementById('t-jobdesc')?.value?.trim();
+      const resumeText = document.getElementById('tailor-resume-text')?.textContent?.trim();
+      if (jobdesc && resumeText) {
+        document.getElementById('i-jobdesc').value = jobdesc;
+        document.getElementById('i-background').value = resumeText.substring(0, 700);
+        document.getElementById('interview-autopull').style.display = 'none';
+        showToast('✓ Job details pulled in — ready to generate');
+      }
+    }
   }
 }
 
