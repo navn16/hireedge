@@ -507,7 +507,7 @@
     <button class="btn-outline" onclick="goToTab('interview');document.getElementById('generator').scrollIntoView({behavior:'smooth'})">🎤 Prep For Interview →</button>
   </div>
   <div class="hero-stats">
-    <div class="stat"><div class="stat-num">Free</div><div class="stat-label">To Get Started</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Free Generations</div></div>
     <div class="stat"><div class="stat-num">60s</div><div class="stat-label">To Tailor Your CV</div></div>
     <div class="stat"><div class="stat-num">5</div><div class="stat-label">Interview Questions</div></div>
     <div class="stat"><div class="stat-num">ATS</div><div class="stat-label">Score + Fix</div></div>
@@ -1074,7 +1074,7 @@ const CONFIG = {
   STRIPE_SINGLE_LINK: 'https://buy.stripe.com/3cI5kv4YP1on10294beZ202',      // $2 single generation
   STRIPE_PACK_LINK: 'https://buy.stripe.com/3cI7sDgHx5EDeQS1BJeZ203',          // $9 one-time 30 days
   STRIPE_LIFETIME_LINK: 'https://buy.stripe.com/fZudR1aj9ffdbEGa8feZ204',  // $79 one-time forever
-  FREE_LIMIT: 3,
+  FREE_LIMIT: 2,
   PACK_DAYS: 30,
 };
 
@@ -1911,24 +1911,97 @@ function togglePracticeMode() {
   btn.style.background = practiceMode ? '#1a3a6b' : '#fff';
   btn.style.color = practiceMode ? '#fff' : '#1a3a6b';
   btn.style.borderColor = practiceMode ? '#1a3a6b' : '#c2d6f8';
-  document.querySelectorAll('.i-answer-text').forEach(el => { el.style.display = practiceMode ? 'none' : 'block'; });
-  document.querySelectorAll('.i-practice-area').forEach(el => { el.style.display = practiceMode ? 'block' : 'none'; });
-  document.querySelectorAll('.i-copy-btn').forEach(el => { el.style.display = practiceMode ? 'none' : 'inline-block'; });
-  document.querySelectorAll('.i-reveal-btn').forEach(el => {
-    if (!el.disabled) el.style.display = practiceMode ? 'inline-block' : 'none';
+  document.querySelectorAll('.i-card').forEach(card => {
+    const revealed = card.dataset.revealed === 'true';
+    const answerEl = card.querySelector('.i-answer-text');
+    const practiceArea = card.querySelector('.i-practice-area');
+    const copyBtn = card.querySelector('.i-copy-btn');
+    const sep = card.querySelector('.i-answer-sep');
+    if (practiceMode) {
+      if (!revealed) {
+        answerEl.style.filter = 'blur(6px)';
+        answerEl.style.userSelect = 'none';
+        answerEl.style.pointerEvents = 'none';
+        sep.style.display = 'none';
+      }
+      practiceArea.style.display = 'block';
+      copyBtn.style.display = 'none';
+    } else {
+      answerEl.style.filter = 'none';
+      answerEl.style.userSelect = '';
+      answerEl.style.pointerEvents = '';
+      practiceArea.style.display = 'none';
+      copyBtn.style.display = 'inline-block';
+      if (revealed) sep.style.display = 'block';
+    }
   });
 }
 
-function revealAnswer(btn) {
+async function revealAnswer(btn) {
   const card = btn.closest('.i-card');
   const answerEl = card.querySelector('.i-answer-text');
   const sep = card.querySelector('.i-answer-sep');
-  answerEl.style.display = 'block';
+  const userAnswerEl = card.querySelector('.i-user-answer');
+  const scoreArea = card.querySelector('.i-score-area');
+  const scoreLoading = card.querySelector('.i-score-loading');
+  const scoreCard = card.querySelector('.i-score-card');
+  const userAnswer = userAnswerEl ? userAnswerEl.value.trim() : '';
+  const suggestedAnswer = answerEl.textContent.trim();
+  const question = card.querySelector('div[style*="font-weight:600;color:var(--navy)"]')?.textContent?.trim() || '';
+
+  // Unblur answer
+  answerEl.style.filter = 'none';
+  answerEl.style.userSelect = '';
+  answerEl.style.pointerEvents = '';
   sep.style.display = 'block';
+  card.dataset.revealed = 'true';
   btn.textContent = '✓ Revealed';
   btn.disabled = true;
   btn.style.opacity = '0.5';
   btn.style.cursor = 'default';
+
+  // If no user answer typed, skip scoring
+  if (!userAnswer) return;
+
+  // Run AI scoring
+  scoreArea.style.display = 'block';
+  scoreLoading.style.display = 'flex';
+  scoreCard.style.display = 'none';
+
+  try {
+    const prompt = `You are an interview coach. Compare the candidate's answer to the ideal answer and give brief, honest feedback. Return ONLY raw JSON — no markdown, no backticks.
+
+QUESTION: ${question}
+CANDIDATE'S ANSWER: ${userAnswer}
+IDEAL ANSWER: ${suggestedAnswer}
+
+Return this exact JSON:
+{
+  "score": <number 1-10>,
+  "got_right": "<one sentence starting with ✅ on what they nailed>",
+  "missed": "<one sentence starting with ⚠ on what was missing or weak — be specific>",
+  "tip": "<one sentence starting with 💡 with a single actionable improvement for next time>"
+}`;
+
+    const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt }) });
+    const data = await res.json();
+    let parsed;
+    try { parsed = JSON.parse(data.text.replace(/```json|```/g, '').trim()); } catch(e) { throw new Error('parse'); }
+
+    const score = parsed.score || 0;
+    const color = score >= 8 ? '#1e9e5e' : score >= 5 ? 'var(--amber2)' : '#c0392b';
+    scoreCard.querySelector('.i-score-badge').textContent = `${score}/10`;
+    scoreCard.querySelector('.i-score-badge').style.color = color;
+    scoreCard.querySelector('.i-score-badge').style.borderColor = color;
+    scoreCard.querySelector('.i-score-right').textContent = parsed.got_right || '';
+    scoreCard.querySelector('.i-score-missed').textContent = parsed.missed || '';
+    scoreCard.querySelector('.i-score-tip').textContent = parsed.tip || '';
+    scoreLoading.style.display = 'none';
+    scoreCard.style.display = 'block';
+  } catch(e) {
+    scoreLoading.style.display = 'none';
+    scoreArea.style.display = 'none';
+  }
 }
 
 async function generateInterview() {
@@ -2028,12 +2101,28 @@ Return this exact JSON:
         </div>
         <div style="background:#fffdf8;border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:10px 14px;font-size:0.78rem;color:var(--muted);margin-bottom:4px;line-height:1.5">💡 ${q.why}</div>
         <div class="i-practice-area" style="display:none;margin-top:14px">
-          <textarea placeholder="Write your answer here before revealing the suggested one..." style="width:100%;min-height:100px;background:#f9f7f4;border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;font-size:0.85rem;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6;color:var(--text);transition:border-color 0.2s,box-shadow 0.2s" onfocus="this.style.borderColor='var(--amber)';this.style.boxShadow='0 0 0 3px rgba(212,140,30,0.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
-          <button class="i-reveal-btn" onclick="revealAnswer(this)" style="margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-size:0.8rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">Reveal Answer ↓</button>
+          <div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px">Write your answer first — the suggested answer is hidden below 👇</div>
+          <textarea class="i-user-answer" placeholder="Type your answer here..." style="width:100%;min-height:110px;background:#f9f7f4;border:1.5px solid var(--border);border-radius:8px;padding:12px 14px;font-size:0.85rem;font-family:'DM Sans',sans-serif;resize:vertical;outline:none;line-height:1.6;color:var(--text);transition:border-color 0.2s,box-shadow 0.2s" onfocus="this.style.borderColor='var(--amber)';this.style.boxShadow='0 0 0 3px rgba(212,140,30,0.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
+          <button class="i-reveal-btn" onclick="revealAnswer(this)" style="margin-top:8px;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:9px 20px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">See How I Did →</button>
         </div>
-        <div class="i-answer-sep" style="display:none;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber);margin:12px 0 6px;font-weight:500">✦ Suggested Answer</div>
-        <div class="i-answer-text" style="font-size:0.85rem;color:var(--text);line-height:1.75;margin-top:12px">${q.answer}</div>
-        <button class="i-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.i-card').querySelector('.i-answer-text').textContent.trim()).then(()=>showToast('Answer copied!'))" style="margin-top:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.2s,border-color 0.2s">Copy Answer</button>`;
+        <div class="i-answer-sep" style="display:none;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--amber);margin:14px 0 6px;font-weight:500">✦ Suggested Answer</div>
+        <div class="i-answer-text" style="font-size:0.85rem;color:var(--text);line-height:1.75;margin-top:12px;transition:filter 0.5s ease;filter:none">${q.answer}</div>
+        <button class="i-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.i-card').querySelector('.i-answer-text').textContent.trim()).then(()=>showToast('Answer copied!'))" style="margin-top:10px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.2s,border-color 0.2s">Copy Answer</button>
+        <div class="i-score-area" style="display:none;margin-top:16px">
+          <div class="i-score-loading" style="display:none;padding:12px 0;display:flex;align-items:center;gap:10px">
+            <div style="display:flex;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s infinite"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s 0.2s infinite"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s 0.4s infinite"></span></div>
+            <div style="font-size:0.78rem;color:var(--muted)">Scoring your answer...</div>
+          </div>
+          <div class="i-score-card" style="display:none;background:linear-gradient(135deg,#f8faff,#fff);border:1.5px solid #c2d6f8;border-radius:12px;padding:18px 20px">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e8f0fe">
+              <div class="i-score-badge" style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--navy);min-width:52px;text-align:center;background:#fff;border:1.5px solid #c2d6f8;border-radius:10px;padding:4px 8px">—</div>
+              <div><div style="font-size:0.82rem;font-weight:600;color:#1a3a6b">Your Score</div><div style="font-size:0.72rem;color:#5a7ab5;margin-top:2px">Based on completeness & clarity</div></div>
+            </div>
+            <div class="i-score-right" style="font-size:0.82rem;line-height:1.6;color:var(--text);margin-bottom:8px;padding:8px 12px;background:rgba(30,158,94,0.06);border-radius:8px;border-left:3px solid #1e9e5e"></div>
+            <div class="i-score-missed" style="font-size:0.82rem;line-height:1.6;color:var(--text);margin-bottom:8px;padding:8px 12px;background:rgba(212,140,30,0.06);border-radius:8px;border-left:3px solid var(--amber)"></div>
+            <div class="i-score-tip" style="font-size:0.82rem;line-height:1.6;color:var(--text);padding:8px 12px;background:rgba(28,43,74,0.04);border-radius:8px;border-left:3px solid var(--navy)"></div>
+          </div>
+        </div>`;
       questionsEl.appendChild(card);
     });
 
