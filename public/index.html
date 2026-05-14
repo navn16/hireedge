@@ -198,6 +198,25 @@
   .legal-ul { color: var(--text); font-size: 0.92rem; line-height: 1.75; margin-bottom: 16px; padding-left: 24px; }
   .legal-ul li { margin-bottom: 6px; }
 
+  /* ── MOCK INTERVIEW ── */
+  .mock-messages { max-height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 20px; background: #f9f7f4; border-radius: 12px; border: 1.5px solid var(--border); margin-bottom: 16px; scroll-behavior: smooth; }
+  .mock-msg { display: flex; align-items: flex-start; gap: 10px; }
+  .mock-msg-user { flex-direction: row-reverse; }
+  .mock-avatar { width: 34px; height: 34px; background: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 0.88rem; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 2px; }
+  .mock-bubble { max-width: 78%; padding: 12px 16px; border-radius: 14px; font-size: 0.88rem; line-height: 1.65; }
+  .mock-bubble-sarah { background: #fff; border: 1.5px solid var(--border); color: var(--text); border-radius: 4px 14px 14px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .mock-bubble-user { background: var(--navy); color: #fff; border-radius: 14px 4px 14px 14px; }
+  .mock-typing { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: #fff; border: 1.5px solid var(--border); border-radius: 4px 14px 14px 14px; width: fit-content; }
+  .mock-typing span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1.2s infinite; display: inline-block; }
+  .mock-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .mock-typing span:nth-child(3) { animation-delay: 0.4s; }
+  .mock-progress-wrap { background: #e8f0fe; border-radius: 100px; height: 5px; margin-bottom: 12px; overflow: hidden; }
+  .mock-progress-fill { background: var(--navy); height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+  @media (max-width: 768px) {
+    .mock-messages { max-height: 340px; padding: 14px; }
+    .mock-bubble { max-width: 88%; font-size: 0.84rem; }
+  }
+
   /* ── AUTH ── */
   .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; }
   .auth-overlay.open { display: flex; }
@@ -277,6 +296,8 @@
     .modal { padding: 32px 20px; }
     .modal h3 { font-size: 1.4rem; }
     #tailor-placeholder { padding: 32px 16px; }
+    #hero-cards { grid-template-columns: 1fr !important; gap: 16px !important; margin-top: 20px !important; }
+    #hero-mobile-pills { display: block !important; }
   }
 </style>
 </head>
@@ -439,6 +460,7 @@
   <nav>
     <a href="#job-tailor">Job Tailor</a>
     <a href="#generator">Tools</a>
+    <a href="#generator" onclick="setTimeout(()=>goToTab('mock'),300)">🎤 Mock Interview</a>
     <a href="#pricing">Pricing</a>
     <div id="header-auth-area">
       <button class="btn-login-header" onclick="openAuth('login')">Log In</button>
@@ -452,65 +474,70 @@
 <div class="mobile-menu" id="mobile-menu">
   <button class="mobile-menu-close" onclick="document.getElementById('mobile-menu').classList.remove('open')">✕</button>
   <a href="#job-tailor" onclick="document.getElementById('mobile-menu').classList.remove('open')">Job Tailor</a>
+  <a href="#generator" onclick="document.getElementById('mobile-menu').classList.remove('open');setTimeout(()=>goToTab('mock'),300)">🎤 Mock Interview</a>
   <a href="#generator" onclick="document.getElementById('mobile-menu').classList.remove('open')">Tools</a>
   <a href="#pricing" onclick="document.getElementById('mobile-menu').classList.remove('open')">Pricing</a>
   <a href="#pricing" onclick="document.getElementById('mobile-menu').classList.remove('open')" style="background:var(--navy);color:#fff;padding:14px 36px;border-radius:8px;font-size:1.2rem">Get Started</a>
 </div>
 
-<div class="hero" style="text-align:center">
+<div class="hero" style="text-align:center;padding-bottom:48px">
   <div class="hero-glow"></div>
   <div class="hero-glow2"></div>
-  <div class="eyebrow">✦ CV Tailoring · Interview Prep · LinkedIn Outreach</div>
+
+  <!-- Eyebrow -->
+  <div class="eyebrow">✦ CV Tailoring · Mock Interview · LinkedIn Outreach</div>
+
+  <!-- Headline -->
   <h1>Stop applying. Start <em>getting hired.</em></h1>
-  <p class="hero-sub" style="max-width:600px;margin:16px auto 0">HireEdge rewrites your CV for the job, predicts the questions they'll ask, and writes your outreach message. Everything a recruiter wants to see — done for you.</p>
 
-  <!-- BEFORE/AFTER VISUAL -->
-  <div style="display:flex;align-items:center;gap:12px;margin:32px 0 24px;animation:fadeUp 0.7s 0.25s ease both">
-    <!-- Before -->
-    <div style="background:#fff;border:1.5px solid rgba(192,57,43,0.25);border-radius:14px;padding:18px 22px;min-width:160px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.06)">
-      <div style="font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#c0392b;margin-bottom:8px;font-weight:500">Generic CV</div>
-      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:#c0392b;line-height:1">34%</div>
-      <div style="font-size:0.75rem;color:#8a7e6e;margin-top:4px">ATS Match</div>
-      <div style="background:#f5e6e4;border-radius:6px;height:6px;margin-top:10px;overflow:hidden">
-        <div style="background:#c0392b;height:100%;width:34%;border-radius:6px"></div>
+  <!-- Mobile-only feature pill bar (shown above cards on small screens) -->
+  <div style="display:none" id="hero-mobile-pills">
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0 8px;animation:fadeUp 0.7s 0.2s ease both">
+      <span style="background:var(--navy);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:#fff;font-weight:500">📄 CV Tailoring</span>
+      <span style="background:var(--navy);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:#fff;font-weight:500">🎤 Mock Interview</span>
+    </div>
+  </div>
+
+  <!-- TWO HERO CARDS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:36px auto 0;animation:fadeUp 0.7s 0.2s ease both" id="hero-cards">
+
+    <!-- LEFT CARD — CV Tailoring -->
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:32px 28px;text-align:left;box-shadow:0 4px 24px rgba(0,0,0,0.07);display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div style="font-size:2rem;margin-bottom:12px">📄</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;color:var(--navy);margin-bottom:8px">CV Tailoring</div>
+        <p style="color:var(--muted);font-size:0.85rem;line-height:1.65;margin-bottom:20px">Paste a job description. Get a tailored CV that beats ATS filters and lands on the recruiter's desk — in 60 seconds.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> ATS optimised resume</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Missing keywords added</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Cover letter included</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Word doc download</div>
+        </div>
       </div>
+      <button class="btn-primary" style="width:100%;text-align:center" onclick="document.getElementById('job-tailor').scrollIntoView({behavior:'smooth'})">✦ Tailor My CV →</button>
     </div>
 
-    <!-- Arrow -->
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <div style="font-size:1.4rem;color:var(--amber)">→</div>
-      <div style="font-size:0.65rem;color:var(--muted);text-align:center;font-weight:500;letter-spacing:0.04em">HIREEDGE<br/>AI</div>
-    </div>
-
-    <!-- After -->
-    <div style="background:#fff;border:1.5px solid rgba(30,158,94,0.3);border-radius:14px;padding:18px 22px;min-width:160px;text-align:center;box-shadow:0 4px 20px rgba(30,158,94,0.1)">
-      <div style="font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:#1e9e5e;margin-bottom:8px;font-weight:500">Tailored CV</div>
-      <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:#1e9e5e;line-height:1">91%</div>
-      <div style="font-size:0.75rem;color:#8a7e6e;margin-top:4px">ATS Match</div>
-      <div style="background:#e4f5ec;border-radius:6px;height:6px;margin-top:10px;overflow:hidden">
-        <div style="background:#1e9e5e;height:100%;width:91%;border-radius:6px"></div>
+    <!-- RIGHT CARD — Mock Interview -->
+    <div style="background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:32px 28px;text-align:left;box-shadow:0 4px 24px rgba(0,0,0,0.07);display:flex;flex-direction:column;justify-content:space-between">
+      <div>
+        <div style="font-size:2rem;margin-bottom:12px">🎤</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;color:var(--navy);margin-bottom:8px">Mock Interview</div>
+        <p style="color:var(--muted);font-size:0.85rem;line-height:1.65;margin-bottom:20px">Practice with Sarah — your interviewer. She asks real questions, reacts to your answers, and scores you at the end.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Role-specific questions</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> AI reacts to your answers</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Scored on 4 metrics</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.83rem;color:var(--text)"><span style="color:var(--green);font-weight:700">✓</span> Tips after every session</div>
+        </div>
       </div>
+      <button class="btn-primary" style="width:100%;text-align:center;background:var(--amber);border-color:var(--amber)" onmouseover="this.style.background='var(--amber2)'" onmouseout="this.style.background='var(--amber)'" onclick="goToTab('mock');document.getElementById('generator').scrollIntoView({behavior:'smooth'})">🎤 Start Practicing →</button>
     </div>
+
   </div>
 
-  <!-- FEATURE PILLS -->
-  <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;animation:fadeUp 0.7s 0.35s ease both">
-    <span style="background:var(--navy);border:1px solid var(--navy);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:#fff;font-weight:500;box-shadow:0 2px 8px rgba(28,43,74,0.2)">🎤 Interview Prep</span>
-    <span style="background:rgba(212,140,30,0.1);border:1px solid rgba(212,140,30,0.3);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--amber2);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.04)">🎯 ATS Match Score</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">📄 Tailored Resume</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">💌 Cover Letter</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">🔑 Missing Keywords</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">✏️ Bullet Point Fixes</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">⬇ Word Doc Download</span>
-    <span style="background:#fff;border:1px solid var(--border);border-radius:100px;padding:6px 14px;font-size:0.78rem;color:var(--navy);font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.05)">🔗 LinkedIn Outreach</span>
-  </div>
-
-  <div class="hero-cta">
-    <button class="btn-primary" onclick="document.getElementById('job-tailor').scrollIntoView({behavior:'smooth'})">✦ Tailor My CV →</button>
-    <button class="btn-outline" onclick="goToTab('interview');document.getElementById('generator').scrollIntoView({behavior:'smooth'})">🎤 Prep For Interview →</button>
-  </div>
-  <div class="hero-stats">
-    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Free Generations</div></div>
+  <!-- Stats bar -->
+  <div class="hero-stats" style="margin-top:48px">
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">Free Sessions</div></div>
     <div class="stat"><div class="stat-num">60s</div><div class="stat-label">To Tailor Your CV</div></div>
     <div class="stat"><div class="stat-num">5</div><div class="stat-label">Interview Questions</div></div>
     <div class="stat"><div class="stat-num">ATS</div><div class="stat-label">Score + Fix</div></div>
@@ -817,6 +844,7 @@
       <button class="tab" onclick="switchTab('linkedin', this)">✦ LinkedIn Bio</button>
       <button class="tab" onclick="switchTab('outreach', this)">🔗 LinkedIn Outreach</button>
       <button class="tab" onclick="switchTab('interview', this)">🎤 Interview Prep</button>
+      <button class="tab" onclick="switchTab('mock', this)">🤖 Mock Interview</button>
     </div>
 
     <!-- RESUME TAB -->
@@ -962,6 +990,106 @@
 
         <div id="interview-questions"></div>
       </div>
+    </div>
+
+    <!-- MOCK INTERVIEW TAB -->
+    <div class="tool-card" id="tab-mock">
+
+      <!-- SETUP SCREEN -->
+      <div id="mock-setup">
+
+        <!-- Auto-pull banner -->
+        <div id="mock-autopull" style="display:none;background:linear-gradient(135deg,#eef4ff,#e8f0fe);border:1.5px solid rgba(28,43,74,0.12);border-radius:12px;padding:14px 18px;margin-bottom:24px;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;background:var(--navy);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">✨</div>
+            <div>
+              <div style="font-size:0.85rem;font-weight:600;color:var(--navy)">CV already tailored!</div>
+              <div style="font-size:0.75rem;color:var(--muted);margin-top:2px">Auto-fill job description & background — no retyping needed</div>
+            </div>
+          </div>
+          <button onclick="mockAutoPull()" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:background 0.2s" onmouseover="this.style.background='#253d6a'" onmouseout="this.style.background='var(--navy)'">Pull in →</button>
+        </div>
+
+        <!-- Sarah intro card -->
+        <div style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#1c2b4a,#253d6a);border-radius:14px;padding:18px 22px;margin-bottom:24px">
+          <div style="width:48px;height:48px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;color:#fff;flex-shrink:0">S</div>
+          <div>
+            <div style="color:#fff;font-weight:600;font-size:0.95rem">Meet Sarah — your Interviewer</div>
+            <div style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-top:3px;line-height:1.5">She'll ask you role-specific questions, react to your answers, and score you at the end. Just like a real interview.</div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field full"><label>Job Description (paste the full posting)</label><textarea id="mock-jobdesc" placeholder="Paste the job description here..." style="min-height:120px"></textarea></div>
+          <div class="field full"><label>Your Background</label><textarea id="mock-background" placeholder="e.g. 5 years as a product manager, led teams of 6, launched 3 SaaS products..." style="min-height:80px"></textarea></div>
+          <div class="field">
+            <label>Experience Level</label>
+            <select id="mock-level">
+              <option value="junior">Junior (0–2 yrs)</option>
+              <option value="mid" selected>Mid-level (3–5 yrs)</option>
+              <option value="senior">Senior (6+ yrs)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Question Focus</label>
+            <select id="mock-focus">
+              <option value="mixed">All Types (Mixed)</option>
+              <option value="behavioural">Behavioural</option>
+              <option value="situational">Situational</option>
+              <option value="role-specific">Role-Specific</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="generate-btn" id="mock-start-btn" onclick="startMockInterview()" style="margin-top:28px">
+          <span>🤖 Start Interview with Sarah</span>
+        </button>
+        <p style="font-size:0.78rem;color:var(--muted);text-align:center;margin-top:10px">
+          <span id="mock-q-info">5 questions (free) · 10 questions for paid users</span> · Uses 1 credit
+        </p>
+      </div>
+
+      <!-- CHAT SCREEN -->
+      <div id="mock-chat" style="display:none">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:14px 18px;background:linear-gradient(135deg,#1c2b4a,#253d6a);border-radius:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;background:var(--amber);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:0.85rem;font-weight:900;color:#fff">S</div>
+            <div>
+              <div style="color:#fff;font-size:0.85rem;font-weight:600">Sarah · Interviewer</div>
+              <div style="color:rgba(255,255,255,0.55);font-size:0.72rem" id="mock-progress-label">Question 1 of 5</div>
+            </div>
+          </div>
+          <button onclick="confirmEndMock()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:5px 12px;border-radius:6px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.18)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">End Interview</button>
+        </div>
+        <!-- Progress bar -->
+        <div class="mock-progress-wrap"><div class="mock-progress-fill" id="mock-progress-fill" style="width:0%"></div></div>
+        <!-- Messages -->
+        <div class="mock-messages" id="mock-messages"></div>
+        <!-- Input -->
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <textarea id="mock-user-input" placeholder="Type your answer here..." style="flex:1;min-height:80px;max-height:180px;background:#f9f7f4;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:12px 14px;outline:none;resize:none;line-height:1.6;transition:border-color 0.2s,box-shadow 0.2s" onfocus="this.style.borderColor='var(--amber)';this.style.boxShadow='0 0 0 3px rgba(212,140,30,0.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMockAnswer();}"></textarea>
+          <button id="mock-send-btn" onclick="sendMockAnswer()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:14px 20px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap;flex-shrink:0" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">Send →</button>
+        </div>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:8px;text-align:center">Press Enter to send · Shift+Enter for new line</p>
+      </div>
+
+      <!-- SCORECARD SCREEN -->
+      <div id="mock-scorecard" style="display:none">
+        <div style="text-align:center;margin-bottom:24px;padding:20px;background:linear-gradient(135deg,#1c2b4a,#253d6a);border-radius:14px">
+          <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px">Interview Complete</div>
+          <div style="color:#fff;font-size:1.1rem;font-weight:600">Great session with Sarah 🎤</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-top:4px">Here's how you did</div>
+        </div>
+        <!-- Loading -->
+        <div id="mock-score-loading" style="display:flex;align-items:center;justify-content:center;gap:12px;padding:40px">
+          <div style="display:flex;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s infinite"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s 0.2s infinite"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:inline-block;animation:bounce 1.2s 0.4s infinite"></span></div>
+          <div style="font-size:0.88rem;color:var(--muted)">Sarah is reviewing your answers...</div>
+        </div>
+        <!-- Content -->
+        <div id="mock-score-content" style="display:none"></div>
+      </div>
+
     </div>
 
     <!-- LINKEDIN TAB -->
@@ -1234,6 +1362,7 @@ function switchTab(name, el) {
   el.classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
   if (name === 'interview') checkAutoPull();
+  if (name === 'mock') checkMockAutoPull();
 }
 
 function goToTab(name) {
@@ -1265,6 +1394,17 @@ function goToTab(name) {
         if (rAchievements) bg += `. ${rAchievements}`;
         document.getElementById('i-background').value = bg.trim();
         showToast('✓ Background pulled in — paste a job description to continue');
+        return;
+      }
+    }
+    if (name === 'mock') {
+      const tailorJobdesc = document.getElementById('t-jobdesc')?.value?.trim();
+      const tailorResume = document.getElementById('tailor-resume-text')?.textContent?.trim();
+      if (tailorJobdesc && tailorResume) {
+        document.getElementById('mock-jobdesc').value = tailorJobdesc;
+        document.getElementById('mock-background').value = tailorResume.substring(0, 700);
+        document.getElementById('mock-autopull').style.display = 'none';
+        showToast('✓ Pulled from your tailored CV — ready to start');
         return;
       }
     }
@@ -2234,6 +2374,367 @@ function showLocalCurrency() {
   } catch(e) {}
 }
 showLocalCurrency();
+
+// ── MOCK INTERVIEW ──
+let mockConversation = [];
+let mockQuestionCount = 0;
+let mockMaxQuestions = 5;
+let mockJobDesc = '';
+let mockBackground = '';
+let mockFocus = 'mixed';
+let mockLevel = 'mid';
+let mockIsActive = false;
+
+function checkMockAutoPull() {
+  const jobdesc = document.getElementById('t-jobdesc')?.value?.trim();
+  const resumeText = document.getElementById('tailor-resume-text')?.textContent?.trim();
+  const banner = document.getElementById('mock-autopull');
+  if (!banner) return;
+  banner.style.display = (jobdesc && resumeText) ? 'flex' : 'none';
+}
+
+function mockAutoPull() {
+  const jobdesc = document.getElementById('t-jobdesc')?.value?.trim();
+  const resumeText = document.getElementById('tailor-resume-text')?.textContent?.trim();
+  if (jobdesc) document.getElementById('mock-jobdesc').value = jobdesc;
+  if (resumeText) document.getElementById('mock-background').value = resumeText.substring(0, 700);
+  document.getElementById('mock-autopull').style.display = 'none';
+  showToast('✓ Pulled from your tailored CV');
+}
+
+async function startMockInterview() {
+  gtag('event', 'mock_interview_start', { event_category: 'engagement' });
+  if (!canGenerate()) { openPaywall(); return; }
+
+  mockJobDesc = document.getElementById('mock-jobdesc').value.trim();
+  mockBackground = document.getElementById('mock-background').value.trim();
+  mockFocus = document.getElementById('mock-focus').value;
+  mockLevel = document.getElementById('mock-level').value;
+
+  if (!mockJobDesc || !mockBackground) {
+    alert('Please fill in both the job description and your background.');
+    return;
+  }
+
+  // Set question limit based on plan
+  mockMaxQuestions = isPro() ? 10 : 5;
+  mockQuestionCount = 0;
+  mockConversation = [];
+  mockIsActive = true;
+
+  // Deduct credit
+  if (!isPro()) {
+    const { count } = getUsage();
+    if (count >= CONFIG.FREE_LIMIT) {
+      if (currentUser && currentSingleCredits > 0) {
+        currentSingleCredits--;
+        try { const sb = getSupabase(); await sb.from('users').update({ single_credits: currentSingleCredits }).eq('id', currentUser.id); } catch(e) {}
+      } else if (getSingleCredits() > 0) {
+        localStorage.setItem('hireedge_single_credits', (getSingleCredits() - 1).toString());
+      }
+    } else { incrementUsage(); }
+    updateUsageDisplay();
+  }
+
+  // Switch to chat screen
+  document.getElementById('mock-setup').style.display = 'none';
+  document.getElementById('mock-scorecard').style.display = 'none';
+  document.getElementById('mock-chat').style.display = 'block';
+  document.getElementById('mock-messages').innerHTML = '';
+  document.getElementById('mock-user-input').value = '';
+  updateMockProgress();
+
+  // Get Sarah's opening message
+  await getSarahMessage(true);
+}
+
+async function getSarahMessage(isFirst) {
+  setMockInputDisabled(true);
+  showMockTyping(true);
+
+  const focusMap = {
+    mixed: 'a balanced mix of behavioural, situational, and role-specific',
+    behavioural: 'behavioural questions using the STAR method',
+    situational: 'situational and scenario-based',
+    'role-specific': 'role-specific and technical'
+  };
+
+  let prompt;
+
+  if (isFirst) {
+    prompt = `You are Sarah, a warm but professional recruiter conducting a job interview.
+
+Job/Role Info: ${mockJobDesc.substring(0, 400)}
+Candidate Background: ${mockBackground.substring(0, 300)}
+Experience Level: ${mockLevel}
+Interview Focus: ${focusMap[mockFocus]}
+Total Questions: ${mockMaxQuestions}
+
+This is the START of the interview. Introduce yourself in 1–2 sentences (name: Sarah, your role, reference the company/role from the job description). Then ask your first ${focusMap[mockFocus]} interview question.
+
+Rules:
+- Warm but professional tone
+- Introduction MUST be under 2 sentences
+- Ask exactly ONE clear question
+- Do NOT number the question
+- Do NOT say "Question 1 of ${mockMaxQuestions}"
+- Stay fully in character as Sarah`;
+  } else {
+    const history = mockConversation.map(m =>
+      `${m.role === 'sarah' ? 'Sarah' : 'Candidate'}: ${m.content}`
+    ).join('\n\n');
+
+    const isLastQuestion = mockQuestionCount >= mockMaxQuestions;
+
+    if (isLastQuestion) {
+      prompt = `You are Sarah, the interviewer. This was the final question of the interview (${mockMaxQuestions} questions total).
+
+Full conversation:
+${history}
+
+The candidate just answered your last question. Close the interview naturally:
+- Thank them warmly (1 sentence)
+- Say something brief and genuine about the conversation (1 sentence)
+- Tell them you'll be in touch
+- Total: 3 sentences maximum
+- Do NOT ask another question
+- Do NOT give coaching tips — just close professionally`;
+    } else {
+      prompt = `You are Sarah, a professional recruiter conducting a job interview.
+
+Job Info: ${mockJobDesc.substring(0, 200)}
+This is question ${mockQuestionCount + 1} of ${mockMaxQuestions}.
+
+Full conversation so far:
+${history}
+
+React briefly to their last answer (1 genuine sentence — acknowledge something specific they said, do NOT praise excessively). Then ask your next ${focusMap[mockFocus]} interview question.
+
+Rules:
+- Reaction: under 15 words, genuine and specific
+- Ask exactly ONE new question
+- Do NOT repeat previous questions
+- Do NOT give coaching tips
+- Stay in character as Sarah`;
+    }
+  }
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    const sarahMsg = data.text || "Thank you for your answer. Let's continue.";
+
+    showMockTyping(false);
+    mockConversation.push({ role: 'sarah', content: sarahMsg });
+    addMockMessage('sarah', sarahMsg);
+
+    // If this was the closing message, start scorecard
+    if (mockQuestionCount >= mockMaxQuestions) {
+      setTimeout(() => generateMockScorecard(), 1800);
+    } else {
+      setMockInputDisabled(false);
+      document.getElementById('mock-user-input').focus();
+    }
+  } catch(e) {
+    showMockTyping(false);
+    addMockMessage('sarah', "I apologise, there was a technical issue. Please try refreshing and starting again.");
+    setMockInputDisabled(false);
+  }
+}
+
+async function sendMockAnswer() {
+  const input = document.getElementById('mock-user-input');
+  const answer = input.value.trim();
+  if (!answer || input.disabled) return;
+
+  input.value = '';
+  mockConversation.push({ role: 'user', content: answer });
+  addMockMessage('user', answer);
+  mockQuestionCount++;
+  updateMockProgress();
+
+  await getSarahMessage(false);
+}
+
+function addMockMessage(role, content) {
+  const container = document.getElementById('mock-messages');
+
+  const wrap = document.createElement('div');
+  wrap.className = `mock-msg mock-msg-${role}`;
+
+  if (role === 'sarah') {
+    wrap.innerHTML = `
+      <div class="mock-avatar">S</div>
+      <div class="mock-bubble mock-bubble-sarah">${content.replace(/\n/g, '<br>')}</div>`;
+  } else {
+    wrap.innerHTML = `
+      <div class="mock-bubble mock-bubble-user">${content.replace(/\n/g, '<br>')}</div>`;
+  }
+
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showMockTyping(show) {
+  const container = document.getElementById('mock-messages');
+  const existing = document.getElementById('mock-typing-indicator');
+  if (show && !existing) {
+    const wrap = document.createElement('div');
+    wrap.className = 'mock-msg mock-msg-sarah';
+    wrap.id = 'mock-typing-indicator';
+    wrap.innerHTML = `<div class="mock-avatar">S</div><div class="mock-typing"><span></span><span></span><span></span></div>`;
+    container.appendChild(wrap);
+    container.scrollTop = container.scrollHeight;
+  } else if (!show && existing) {
+    existing.remove();
+  }
+}
+
+function setMockInputDisabled(disabled) {
+  const input = document.getElementById('mock-user-input');
+  const btn = document.getElementById('mock-send-btn');
+  if (input) { input.disabled = disabled; input.style.opacity = disabled ? '0.5' : '1'; }
+  if (btn) { btn.disabled = disabled; btn.style.opacity = disabled ? '0.5' : '1'; }
+}
+
+function updateMockProgress() {
+  const done = Math.min(mockQuestionCount, mockMaxQuestions);
+  const label = document.getElementById('mock-progress-label');
+  const fill = document.getElementById('mock-progress-fill');
+  if (label) label.textContent = mockQuestionCount < mockMaxQuestions
+    ? `Question ${done + 1} of ${mockMaxQuestions}`
+    : `Wrapping up...`;
+  if (fill) fill.style.width = `${(done / mockMaxQuestions) * 100}%`;
+}
+
+function confirmEndMock() {
+  if (confirm('End the interview now? You'll still get your score card.')) {
+    mockQuestionCount = mockMaxQuestions;
+    generateMockScorecard();
+  }
+}
+
+async function generateMockScorecard() {
+  document.getElementById('mock-chat').style.display = 'none';
+  document.getElementById('mock-scorecard').style.display = 'block';
+  document.getElementById('mock-score-loading').style.display = 'flex';
+  document.getElementById('mock-score-content').style.display = 'none';
+  document.getElementById('mock-score-content').innerHTML = '';
+
+  const history = mockConversation.map(m =>
+    `${m.role === 'sarah' ? 'Sarah (Interviewer)' : 'Candidate'}: ${m.content}`
+  ).join('\n\n');
+
+  const prompt = `You are an expert interview coach. Analyse this mock interview and give honest, specific feedback. Return ONLY raw JSON — no markdown, no backticks.
+
+Job Description: ${mockJobDesc.substring(0, 300)}
+Candidate Background: ${mockBackground.substring(0, 200)}
+
+Full Interview:
+${history}
+
+Return this exact JSON:
+{
+  "overall_score": <number 1-10>,
+  "relevance_score": <number 1-10>,
+  "relevance_note": "<one specific sentence on how well they answered the actual questions asked>",
+  "specificity_score": <number 1-10>,
+  "specificity_note": "<one sentence on use of concrete examples, numbers, or real details>",
+  "confidence_score": <number 1-10>,
+  "confidence_note": "<one sentence on directness, conviction, and clarity in their answers>",
+  "structure_score": <number 1-10>,
+  "structure_note": "<one sentence on logical flow and organisation — did they use STAR or similar?>",
+  "biggest_strength": "<one sentence starting with ✅ on their single strongest quality across the interview>",
+  "biggest_gap": "<one sentence starting with ⚠️ on the most important thing to improve>",
+  "top_tip": "<one sentence starting with 💡 with the single most actionable thing to do before their next interview>"
+}`;
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    let parsed;
+    try { parsed = JSON.parse(data.text.replace(/```json|```/g, '').trim()); } catch(e) { throw new Error('parse'); }
+    renderMockScorecard(parsed);
+  } catch(e) {
+    document.getElementById('mock-score-loading').style.display = 'none';
+    document.getElementById('mock-score-content').innerHTML = '<div style="color:#c0392b;padding:16px;text-align:center">Could not generate scorecard. Please try again.</div>';
+    document.getElementById('mock-score-content').style.display = 'block';
+  }
+}
+
+function renderMockScorecard(d) {
+  const overall = Math.min(10, Math.max(1, d.overall_score || 5));
+  const overallColor = overall >= 8 ? '#1e9e5e' : overall >= 5 ? 'var(--amber2)' : '#c0392b';
+
+  const metrics = [
+    { label: 'Relevance',    score: d.relevance_score,    note: d.relevance_note },
+    { label: 'Specificity',  score: d.specificity_score,  note: d.specificity_note },
+    { label: 'Confidence',   score: d.confidence_score,   note: d.confidence_note },
+    { label: 'Structure',    score: d.structure_score,    note: d.structure_note },
+  ];
+
+  const metricsHTML = metrics.map(m => {
+    const s = Math.min(10, Math.max(1, m.score || 5));
+    const c = s >= 8 ? '#1e9e5e' : s >= 5 ? 'var(--amber2)' : '#c0392b';
+    return `<div style="margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:0.85rem;font-weight:500;color:var(--navy)">${m.label}</span>
+        <span style="font-size:0.85rem;font-weight:700;color:${c}">${s}/10</span>
+      </div>
+      <div style="background:#f0f0f0;border-radius:100px;height:6px;overflow:hidden">
+        <div style="background:${c};height:100%;width:${s * 10}%;border-radius:100px;transition:width 1s ease"></div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:5px;line-height:1.5">${m.note || ''}</div>
+    </div>`;
+  }).join('');
+
+  const paywallHTML = !isPro() ? `
+    <div style="background:linear-gradient(135deg,#fffdf8,#fff8ec);border:2px solid var(--amber);border-radius:12px;padding:20px;margin-top:20px;text-align:center">
+      <div style="font-size:0.88rem;font-weight:600;color:var(--navy);margin-bottom:6px">🎯 Want a full 10-question interview?</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:14px;line-height:1.5">You practised ${mockMaxQuestions} questions. Unlock 10 per session + unlimited CV tailoring for 30 days.</div>
+      <button onclick="checkout('pack')" style="background:var(--navy);color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:background 0.2s" onmouseover="this.style.background='#253d6a'" onmouseout="this.style.background='var(--navy)'">Unlock Full Sessions — $9 →</button>
+    </div>` : '';
+
+  document.getElementById('mock-score-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Overall Score</div>
+      <div style="font-family:'Playfair Display',serif;font-size:4.5rem;font-weight:900;color:${overallColor};line-height:1">${overall}<span style="font-size:1.5rem;color:var(--muted);font-family:'DM Sans',sans-serif">/10</span></div>
+    </div>
+    <div style="margin-bottom:8px">${metricsHTML}</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px">
+      <div style="font-size:0.85rem;line-height:1.65;padding:12px 14px;background:rgba(30,158,94,0.06);border-radius:10px;border-left:3px solid #1e9e5e">${d.biggest_strength || ''}</div>
+      <div style="font-size:0.85rem;line-height:1.65;padding:12px 14px;background:rgba(212,140,30,0.06);border-radius:10px;border-left:3px solid var(--amber)">${d.biggest_gap || ''}</div>
+      <div style="font-size:0.85rem;line-height:1.65;padding:12px 14px;background:rgba(28,43,74,0.04);border-radius:10px;border-left:3px solid var(--navy)">${d.top_tip || ''}</div>
+    </div>
+    ${paywallHTML}
+    <button onclick="resetMockInterview()" style="width:100%;margin-top:16px;background:var(--surface2);border:1.5px solid var(--border);color:var(--navy);padding:13px;border-radius:8px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.borderColor='var(--navy)'" onmouseout="this.style.borderColor='var(--border)'">↻ Practice Again</button>
+  `;
+
+  document.getElementById('mock-score-loading').style.display = 'none';
+  document.getElementById('mock-score-content').style.display = 'block';
+}
+
+function resetMockInterview() {
+  mockConversation = [];
+  mockQuestionCount = 0;
+  mockIsActive = false;
+  document.getElementById('mock-scorecard').style.display = 'none';
+  document.getElementById('mock-chat').style.display = 'none';
+  document.getElementById('mock-setup').style.display = 'block';
+  // Update question info label
+  const infoEl = document.getElementById('mock-q-info');
+  if (infoEl) infoEl.textContent = isPro()
+    ? '10 questions per session (Pro)'
+    : '5 questions (free) · 10 questions for paid users';
+}
 
 // ── LOAD EXAMPLE ──
 function loadExample() {
