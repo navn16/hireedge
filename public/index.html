@@ -1069,7 +1069,10 @@
         <!-- Input -->
         <div style="display:flex;gap:10px;align-items:flex-end">
           <textarea id="mock-user-input" placeholder="Type your answer here..." style="flex:1;min-height:80px;max-height:180px;background:#f9f7f4;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:12px 14px;outline:none;resize:none;line-height:1.6;transition:border-color 0.2s,box-shadow 0.2s" onfocus="this.style.borderColor='var(--amber)';this.style.boxShadow='0 0 0 3px rgba(212,140,30,0.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMockAnswer();}"></textarea>
-          <button id="mock-send-btn" onclick="sendMockAnswer()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:14px 20px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap;flex-shrink:0" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">Send →</button>
+          <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+            <button id="mock-send-btn" onclick="sendMockAnswer()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">Send →</button>
+            <button id="mock-skip-btn" onclick="skipMockQuestion()" style="background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;padding:10px 20px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap" onmouseover="if(!this.disabled)this.style.borderColor='var(--navy)';if(!this.disabled)this.style.color='var(--navy)'" onmouseout="if(!this.disabled)this.style.borderColor='var(--border)';if(!this.disabled)this.style.color='var(--muted)'">Skip ↩</button>
+          </div>
         </div>
         <p style="font-size:0.72rem;color:var(--muted);margin-top:8px;text-align:center">Press Enter to send · Shift+Enter for new line</p>
       </div>
@@ -2546,6 +2549,15 @@ Rules:
   }
 }
 
+async function skipMockQuestion() {
+  if (document.getElementById('mock-send-btn').disabled) return;
+  mockConversation.push({ role: 'user', content: '[Skipped]' });
+  addMockMessage('user', '⏭ Skipped');
+  mockQuestionCount++;
+  updateMockProgress();
+  await getSarahMessage(false);
+}
+
 async function sendMockAnswer() {
   const input = document.getElementById('mock-user-input');
   const answer = input.value.trim();
@@ -2597,8 +2609,10 @@ function showMockTyping(show) {
 function setMockInputDisabled(disabled) {
   const input = document.getElementById('mock-user-input');
   const btn = document.getElementById('mock-send-btn');
+  const skip = document.getElementById('mock-skip-btn');
   if (input) { input.disabled = disabled; input.style.opacity = disabled ? '0.5' : '1'; }
   if (btn) { btn.disabled = disabled; btn.style.opacity = disabled ? '0.5' : '1'; }
+  if (skip) { skip.disabled = disabled; skip.style.opacity = disabled ? '0.5' : '1'; }
 }
 
 function updateMockProgress() {
