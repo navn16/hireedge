@@ -2849,15 +2849,9 @@ function initVoice() {
   updateVoiceToggle();
   // Warm up voice list (Chrome loads async)
   if ('speechSynthesis' in window) {
-    const logVoices = () => {
-      const voices = speechSynthesis.getVoices();
-      const en = voices.filter(v => v.lang.startsWith('en'));
-      console.log('=== Available English voices ===');
-      en.forEach(v => console.log(`Name: "${v.name}" | Lang: ${v.lang} | Local: ${v.localService}`));
-      console.log(`Total English voices: ${en.length} / Total voices: ${voices.length}`);
-    };
-    if (speechSynthesis.getVoices().length > 0) logVoices();
-    else speechSynthesis.onvoiceschanged = logVoices;
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.onvoiceschanged = () => {};
+    }
   }
   // Hide mic button on unsupported browsers (Firefox)
   const mic = document.getElementById('mock-mic-btn');
