@@ -504,7 +504,7 @@
   </div>
 </div>
 <header>
-  <div class="logo">Hire<span>Edge</span> AI</div>
+  <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" style="text-decoration:none"><div class="logo">Hire<span>Edge</span> AI</div></a>
   <nav>
     <a href="#job-tailor">Job Tailor</a>
     <a href="#generator">Tools</a>
@@ -1110,7 +1110,10 @@
             <div style="color:rgba(255,255,255,0.5);font-size:0.72rem;margin-bottom:8px" id="mock-progress-label">Question 1 of 5</div>
             <div class="mock-progress-wrap" style="margin-bottom:0"><div class="mock-progress-fill" id="mock-progress-fill" style="width:0%"></div></div>
           </div>
-          <button id="sarah-voice-toggle" onclick="toggleVoice()" title="Voice on — click to mute" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 14px;border-radius:20px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap">🔊 Voice on</button>
+          <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;white-space:nowrap">
+            <button id="sarah-voice-toggle" onclick="toggleVoice()" title="Click to mute Sarah" style="background:#fff;border:none;color:var(--navy);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.2)">🔊 Voice on</button>
+            <button id="sarah-replay-btn" onclick="replayLastSarah()" title="Replay Sarah's last message" style="background:#fff;border:none;color:var(--navy);padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.2)">↺ Replay</button>
+          </div>
         </div>
 
         <!-- RIGHT: Chat Column -->
@@ -2874,8 +2877,15 @@ function updateVoiceToggle() {
   const btn = document.getElementById('sarah-voice-toggle');
   if (!btn) return;
   btn.textContent = voiceEnabled ? '🔊 Voice on' : '🔇 Voice off';
-  btn.style.opacity = voiceEnabled ? '1' : '0.6';
+  btn.style.opacity = voiceEnabled ? '1' : '0.55';
   btn.title = voiceEnabled ? 'Click to mute Sarah' : 'Click to unmute Sarah';
+}
+
+function replayLastSarah() {
+  const messages = document.querySelectorAll('.mock-bubble-sarah');
+  if (!messages.length) return;
+  const last = messages[messages.length - 1];
+  sarahSpeak(last.innerText);
 }
 
 function sarahSpeak(text) {
