@@ -1423,7 +1423,9 @@ function goToTab(name) {
   const tabBtn = document.querySelector(`.tab[onclick*="switchTab('${name}'"]`);
   if (tabBtn) {
     switchTab(name, tabBtn);
-    document.getElementById('generator').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = document.getElementById('generator');
+    const top = el.getBoundingClientRect().top + window.scrollY - 70;
+    window.scrollTo({ top, behavior: 'smooth' });
     if (name === 'interview') {
       // Priority 1: CV Tailor data
       const tailorJobdesc = document.getElementById('t-jobdesc')?.value?.trim();
