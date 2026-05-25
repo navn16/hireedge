@@ -2889,8 +2889,11 @@ function sarahSpeak(text) {
   utter.pitch = 1.05;
   // Pick best available female English voice
   const voices = speechSynthesis.getVoices();
-  const pick = voices.find(v => v.name === 'Samantha')                          // macOS
-    || voices.find(v => v.name.includes('Google UK English Female'))              // Chrome/Win
+  const pick = voices.find(v => v.name === 'Google UK English Female')           // Chrome (best)
+    || voices.find(v => v.name === 'Google US English')                           // Chrome fallback
+    || voices.find(v => v.name === 'Serena')                                      // macOS Premium
+    || voices.find(v => v.name === 'Karen')                                       // macOS AU
+    || voices.find(v => v.name === 'Samantha')                                    // macOS US
     || voices.find(v => /female/i.test(v.name) && v.lang.startsWith('en'))
     || voices.find(v => v.lang === 'en-GB')
     || voices.find(v => v.lang.startsWith('en'));
