@@ -261,6 +261,10 @@
     .mock-bubble { max-width: 88%; font-size: 0.84rem; }
   }
 
+  /* ── VOICE ── */
+  .mic-btn.listening { background:#fee2e2 !important;border-color:#e53e3e !important;color:#e53e3e !important;animation:mic-pulse 1.2s ease-in-out infinite }
+  @keyframes mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(229,62,62,0.4)} 50%{box-shadow:0 0 0 8px rgba(229,62,62,0)} }
+
   /* ── AUTH ── */
   .auth-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 3000; display: none; align-items: center; justify-content: center; }
   .auth-overlay.open { display: flex; }
@@ -1106,6 +1110,7 @@
             <div style="color:rgba(255,255,255,0.5);font-size:0.72rem;margin-bottom:8px" id="mock-progress-label">Question 1 of 5</div>
             <div class="mock-progress-wrap" style="margin-bottom:0"><div class="mock-progress-fill" id="mock-progress-fill" style="width:0%"></div></div>
           </div>
+          <button id="sarah-voice-toggle" onclick="toggleVoice()" title="Voice on — click to mute" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:4px 14px;border-radius:20px;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap">🔊 Voice on</button>
         </div>
 
         <!-- RIGHT: Chat Column -->
@@ -1118,6 +1123,7 @@
               <textarea id="mock-user-input" placeholder="Type your answer here..." style="flex:1;min-height:72px;max-height:140px;background:#f9f7f4;border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 14px;outline:none;resize:none;line-height:1.6;transition:border-color 0.2s,box-shadow 0.2s" onfocus="this.style.borderColor='var(--amber)';this.style.boxShadow='0 0 0 3px rgba(212,140,30,0.1)';setSarahMood('listening')" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none';setSarahMood('idle')" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMockAnswer();}"></textarea>
               <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
                 <button id="mock-send-btn" onclick="sendMockAnswer()" style="background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px 20px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.2s;white-space:nowrap" onmouseover="if(!this.disabled)this.style.background='#253d6a'" onmouseout="if(!this.disabled)this.style.background='var(--navy)'">Send →</button>
+                <button id="mock-mic-btn" class="mic-btn" onclick="toggleMic()" title="Speak your answer" style="background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:0.88rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap">🎙 Mic</button>
                 <button id="mock-skip-btn" onclick="skipMockQuestion()" style="background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;padding:10px 20px;font-size:0.82rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap" onmouseover="if(!this.disabled)this.style.borderColor='var(--navy)';if(!this.disabled)this.style.color='var(--navy)'" onmouseout="if(!this.disabled)this.style.borderColor='var(--border)';if(!this.disabled)this.style.color='var(--muted)'">Skip ↩</button>
               </div>
             </div>
@@ -2518,6 +2524,7 @@ async function startMockInterview() {
   document.getElementById('mock-messages').innerHTML = '';
   document.getElementById('mock-user-input').value = '';
   updateMockProgress();
+  initVoice();
 
   // Get Sarah's opening message
   await getSarahMessage(true);
@@ -2656,6 +2663,7 @@ function addMockMessage(role, content) {
     wrap.innerHTML = `
       <div class="mock-avatar">S</div>
       <div class="mock-bubble mock-bubble-sarah">${content.replace(/\n/g, '<br>')}</div>`;
+    sarahSpeak(content);
   } else {
     wrap.innerHTML = `
       <div class="mock-bubble mock-bubble-user">${content.replace(/\n/g, '<br>')}</div>`;
@@ -2684,9 +2692,11 @@ function setMockInputDisabled(disabled) {
   const input = document.getElementById('mock-user-input');
   const btn = document.getElementById('mock-send-btn');
   const skip = document.getElementById('mock-skip-btn');
+  const mic = document.getElementById('mock-mic-btn');
   if (input) { input.disabled = disabled; input.style.opacity = disabled ? '0.5' : '1'; }
   if (btn) { btn.disabled = disabled; btn.style.opacity = disabled ? '0.5' : '1'; }
   if (skip) { skip.disabled = disabled; skip.style.opacity = disabled ? '0.5' : '1'; }
+  if (mic) { mic.disabled = disabled; mic.style.opacity = disabled ? '0.5' : '1'; }
 }
 
 function updateMockProgress() {
@@ -2701,6 +2711,8 @@ function updateMockProgress() {
 
 function confirmEndMock() {
   if (confirm("End the interview now? You'll still get your score card.")) {
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    if (mockSpeechRecognition) { try { mockSpeechRecognition.abort(); } catch(e) {} }
     mockQuestionCount = mockMaxQuestions;
     generateMockScorecard();
   }
@@ -2816,9 +2828,133 @@ function resetMockInterview() {
   mockConversation = [];
   mockQuestionCount = 0;
   mockIsActive = false;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  if (mockSpeechRecognition) { try { mockSpeechRecognition.abort(); } catch(e) {} }
+  isMicListening = false;
+  updateMicBtn();
   document.getElementById('mock-scorecard').style.display = 'none';
   document.getElementById('mock-chat').style.display = 'none';
   document.getElementById('mock-setup').style.display = 'block';
+}
+
+// ── VOICE (TTS + STT) ──
+let voiceEnabled = localStorage.getItem('hireedge_voice') !== 'false'; // on by default
+let mockSpeechRecognition = null;
+let isMicListening = false;
+
+function initVoice() {
+  updateVoiceToggle();
+  // Warm up voice list (Chrome loads async)
+  if ('speechSynthesis' in window) {
+    const logVoices = () => {
+      const voices = speechSynthesis.getVoices();
+      const en = voices.filter(v => v.lang.startsWith('en'));
+      console.log('=== Available English voices ===');
+      en.forEach(v => console.log(`Name: "${v.name}" | Lang: ${v.lang} | Local: ${v.localService}`));
+      console.log(`Total English voices: ${en.length} / Total voices: ${voices.length}`);
+    };
+    if (speechSynthesis.getVoices().length > 0) logVoices();
+    else speechSynthesis.onvoiceschanged = logVoices;
+  }
+  // Hide mic button on unsupported browsers (Firefox)
+  const mic = document.getElementById('mock-mic-btn');
+  if (mic && !window.SpeechRecognition && !window.webkitSpeechRecognition) {
+    mic.style.display = 'none';
+  }
+}
+
+function toggleVoice() {
+  voiceEnabled = !voiceEnabled;
+  localStorage.setItem('hireedge_voice', voiceEnabled);
+  if (!voiceEnabled && 'speechSynthesis' in window) speechSynthesis.cancel();
+  updateVoiceToggle();
+}
+
+function updateVoiceToggle() {
+  const btn = document.getElementById('sarah-voice-toggle');
+  if (!btn) return;
+  btn.textContent = voiceEnabled ? '🔊 Voice on' : '🔇 Voice off';
+  btn.style.opacity = voiceEnabled ? '1' : '0.6';
+  btn.title = voiceEnabled ? 'Click to mute Sarah' : 'Click to unmute Sarah';
+}
+
+function sarahSpeak(text) {
+  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  // Strip newlines and any stray HTML, trim whitespace
+  const plain = text.replace(/<[^>]*>/g, '').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!plain) return;
+  const utter = new SpeechSynthesisUtterance(plain);
+  utter.rate = 0.93;
+  utter.pitch = 1.05;
+  // Pick best available female English voice
+  const voices = speechSynthesis.getVoices();
+  const pick = voices.find(v => v.name === 'Samantha')                          // macOS
+    || voices.find(v => v.name.includes('Google UK English Female'))              // Chrome/Win
+    || voices.find(v => /female/i.test(v.name) && v.lang.startsWith('en'))
+    || voices.find(v => v.lang === 'en-GB')
+    || voices.find(v => v.lang.startsWith('en'));
+  if (pick) utter.voice = pick;
+  speechSynthesis.speak(utter);
+}
+
+function toggleMic() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) return;
+
+  if (isMicListening) {
+    mockSpeechRecognition.stop();
+    return;
+  }
+
+  // Pause TTS while user speaks
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+
+  mockSpeechRecognition = new SpeechRec();
+  mockSpeechRecognition.continuous = false;
+  mockSpeechRecognition.interimResults = false;
+  mockSpeechRecognition.lang = 'en-US';
+
+  mockSpeechRecognition.onstart = () => {
+    isMicListening = true;
+    updateMicBtn();
+    setSarahMood('listening');
+  };
+
+  mockSpeechRecognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript.trim();
+    const input = document.getElementById('mock-user-input');
+    if (input && transcript) {
+      input.value = input.value ? input.value + ' ' + transcript : transcript;
+    }
+  };
+
+  mockSpeechRecognition.onend = () => {
+    isMicListening = false;
+    updateMicBtn();
+  };
+
+  mockSpeechRecognition.onerror = (e) => {
+    isMicListening = false;
+    updateMicBtn();
+    if (e.error !== 'no-speech' && e.error !== 'aborted') showToast('Mic error: ' + e.error);
+  };
+
+  mockSpeechRecognition.start();
+}
+
+function updateMicBtn() {
+  const btn = document.getElementById('mock-mic-btn');
+  if (!btn) return;
+  if (isMicListening) {
+    btn.textContent = '⏹ Stop';
+    btn.classList.add('listening');
+    btn.title = 'Click to stop recording';
+  } else {
+    btn.textContent = '🎙 Mic';
+    btn.classList.remove('listening');
+    btn.title = 'Speak your answer';
+  }
 }
 
 // ── LOAD EXAMPLE ──
