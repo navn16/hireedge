@@ -8,20 +8,7 @@ module.exports = async function handler(req, res) {
 
     if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
 
-    // Trim key to remove any accidental whitespace
-    const apiKey = (process.env.ANTHROPIC_API_KEY || '').trim();
-    if (!apiKey) return res.status(500).json({ error: 'API key not configured', debug: 'empty key' });
-
-    // Temporary debug - remove after fixing
-    if (prompt === 'debug_key') {
-      return res.status(200).json({
-        length: apiKey.length,
-        first4: apiKey.substring(0, 4),
-        last4: apiKey.substring(apiKey.length - 4)
-      });
-    }
-
-    const client = new Anthropic({ apiKey });
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     let messages;
 
