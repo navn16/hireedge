@@ -6,6 +6,10 @@ module.exports = async function handler(req, res) {
   try {
     const { prompt, fileBase64, fileType } = req.body;
 
+    // Debug: log key presence (first 10 chars only)
+    const key = process.env.ANTHROPIC_API_KEY || '';
+    console.log('API Key present:', !!key, 'starts with:', key.substring(0, 10));
+
     if (!prompt) return res.status(400).json({ error: 'Missing prompt' });
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
