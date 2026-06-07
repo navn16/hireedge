@@ -49,21 +49,26 @@ module.exports = async function handler(req, res) {
       if (users && users.length > 0) {
         const userId = users[0].id;
 
+        const stripeCustomerId = session.customer || null;
+
         if (plan === 'single') {
           const currentCredits = users[0].single_credits || 0;
           await supabase.from('users').update({
-            single_credits: currentCredits + 1
+            single_credits: currentCredits + 1,
+            stripe_customer_id: stripeCustomerId
           }).eq('id', userId);
         } else if (plan === 'pack') {
           const expires = new Date();
           expires.setDate(expires.getDate() + 30);
           await supabase.from('users').update({
             plan: 'pack',
-            plan_expires_at: expires.toISOString()
+            plan_expires_at: expires.toISOString(),
+            stripe_customer_id: stripeCustomerId
           }).eq('id', userId);
         } else if (plan === 'lifetime') {
           await supabase.from('users').update({
-            plan: 'lifetime'
+            plan: 'lifetime',
+            stripe_customer_id: stripeCustomerId
           }).eq('id', userId);
         }
       }
