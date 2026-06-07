@@ -71,6 +71,9 @@ module.exports = async function handler(req, res) {
             stripe_customer_id: stripeCustomerId
           }).eq('id', userId);
         }
+        console.log(`[HireEdge] Plan updated — email: ${email}, plan: ${plan}, session: ${session.id}`);
+      } else {
+        console.error(`[HireEdge] Payment received but no Supabase user found — email: ${email}, plan: ${plan}, session: ${session.id}`);
       }
     }
   }
