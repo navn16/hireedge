@@ -2635,7 +2635,13 @@ Rules:
       body: JSON.stringify({ prompt })
     });
     const data = await res.json();
-    const sarahMsg = data.text || "Thank you for your answer. Let's continue.";
+    if (!data.text || data.error) {
+      showMockTyping(false);
+      addMockMessage('sarah', "I'm having a technical issue — please try again in a moment.");
+      setMockInputDisabled(false);
+      return;
+    }
+    const sarahMsg = data.text;
 
     showMockTyping(false);
     mockConversation.push({ role: 'sarah', content: sarahMsg });
