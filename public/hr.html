@@ -200,7 +200,7 @@ Return this exact JSON:
   "gaps": ["<up to 4 things missing or weak for this role>"]
 }`;
 
-      const res = await fetch('/api/generate', {
+      const res = await fetch('https://hireedge-ai.com/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, fileBase64: base64, fileType: 'pdf' })
