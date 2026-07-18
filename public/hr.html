@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HireEdge AI for HR — Screen Candidates in Minutes</title>
+<meta name="description" content="Paste a job spec, upload CVs, and get every candidate ranked by fit instantly. Built for HR teams and recruiters." />
+<meta name="robots" content="noindex" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4WC54Z62Q6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-4WC54Z62Q6');
+</script>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface2: #f3f0eb;
+    --border: rgba(0,0,0,0.08);
+    --navy: #1c2b4a;
+    --amber: #d48c1e;
+    --amber2: #b87318;
+    --text: #2d2416;
+    --muted: #8a7e6e;
+    --green: #1e9e5e;
+    --red: #c0392b;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 22px 48px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); z-index: 100; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; color: var(--navy); text-decoration: none; }
+  .logo span { color: var(--amber); }
+  .logo-tag { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--border); }
+  nav a { color: var(--muted); text-decoration: none; font-size: 0.88rem; }
+  nav a:hover { color: var(--text); }
+
+  .hero { max-width: 780px; margin: 0 auto; padding: 72px 24px 40px; text-align: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--border); padding: 6px 16px; border-radius: 100px; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); margin-bottom: 28px; box-shadow: var(--shadow); }
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; color: var(--navy); }
+  h1 em { font-style: italic; color: var(--amber); }
+  .hero-sub { margin-top: 20px; color: var(--muted); font-size: 1.05rem; line-height: 1.65; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px 96px; }
+  .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  label { font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  textarea { background: #f9f7f4; border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.92rem; padding: 14px 16px; outline: none; resize: none; min-height: 140px; line-height: 1.6; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+  textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(212,140,30,0.1); }
+
+  .upload-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 32px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
+  .upload-zone:hover { border-color: var(--amber); background: rgba(212,140,30,0.04); }
+  .upload-zone.has-files { border-color: #1e9e5e; background: rgba(30,158,94,0.05); }
+  .upload-zone input[type=file] { display: none; }
+
+  .go-btn { margin-top: 8px; width: 100%; background: var(--navy); color: #fff; padding: 17px; border-radius: 10px; font-size: 0.98rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .go-btn:hover { background: #253d6a; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(28,43,74,0.2); }
+  .go-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+  #progress-note { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 14px; display: none; }
+
+  #results { margin-top: 40px; display: none; flex-direction: column; gap: 16px; }
+  .candidate-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: flex-start; }
+  .rank-badge { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.4rem; color: var(--muted); min-width: 34px; }
+  .candidate-body { flex: 1; }
+  .candidate-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .candidate-name { font-weight: 500; font-size: 1.05rem; color: var(--navy); }
+  .score-pill { font-size: 0.78rem; font-weight: 600; padding: 4px 14px; border-radius: 100px; }
+  .score-high { background: rgba(30,158,94,0.12); color: #1e9e5e; }
+  .score-mid { background: rgba(212,140,30,0.12); color: var(--amber2); }
+  .score-low { background: rgba(192,57,43,0.1); color: var(--red); }
+  .verdict-text { font-size: 0.88rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; font-weight: 500; }
+  .tag-strength { background: rgba(30,158,94,0.1); color: #1e9e5e; }
+  .tag-gap { background: rgba(192,57,43,0.08); color: var(--red); }
+  .file-error { font-size: 0.8rem; color: var(--red); padding: 10px 0; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; color: var(--muted); font-size: 0.82rem; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://hireedge-ai.com" class="logo">Hire<span>Edge</span> AI<span class="logo-tag">For HR</span></a>
+  <nav><a href="https://hireedge-ai.com">← Back to main site</a></nav>
+</header>
+
+<div class="hero">
+  <div class="eyebrow">For HR Teams &amp; Recruiters</div>
+  <h1>Screen candidates in <em>minutes</em>, not days</h1>
+  <p class="hero-sub">Paste your job spec, drop in the CVs you've received, and get every candidate ranked by fit — with strengths and gaps called out instantly.</p>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <div class="field">
+      <label>Job Description</label>
+      <textarea id="hr-jobspec" placeholder="Paste the full job description here — role, requirements, responsibilities..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Candidate CVs (PDF, up to 15 at once)</label>
+      <div class="upload-zone" id="hr-upload-zone" onclick="document.getElementById('hr-file-input').click()">
+        <input type="file" id="hr-file-input" accept=".pdf" multiple onchange="handleHRFiles(this)" />
+        <div id="hr-upload-text">
+          <div style="font-size:1.8rem;margin-bottom:8px">📁</div>
+          <div style="font-size:0.9rem;color:var(--muted)">Click to select CVs</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px">PDF only</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="go-btn" id="hr-analyse-btn" onclick="analyseCandidates()">
+      <span>✦ Analyse Candidates</span>
+    </button>
+    <div id="progress-note"></div>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<footer>
+  Part of <a href="https://hireedge-ai.com">HireEdge AI</a> · Nothing you upload here is saved — refresh clears your results.
+</footer>
+
+<script>
+let hrFiles = [];
+
+function handleHRFiles(input) {
+  hrFiles = Array.from(input.files || []).slice(0, 15);
+  const zone = document.getElementById('hr-upload-zone');
+  const text = document.getElementById('hr-upload-text');
+  if (hrFiles.length > 0) {
+    zone.classList.add('has-files');
+    text.innerHTML = '<div style="font-size:1.8rem;margin-bottom:8px">✅</div><div style="font-size:0.9rem;color:#1e9e5e;font-weight:500">' + hrFiles.length + ' CV' + (hrFiles.length > 1 ? 's' : '') + ' selected</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">Click to change</div>';
+  } else {
+    zone.classList.remove('has-files');
+    text.innerHTML = '<div style="font-size:1.8rem;margin-bottom:8px">📁</div><div style="font-size:0.9rem;color:var(--muted)">Click to select CVs</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">PDF only</div>';
+  }
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function analyseCandidates() {
+  const jobSpec = document.getElementById('hr-jobspec').value.trim();
+  if (!jobSpec) { alert('Please paste the job description first.'); return; }
+  if (hrFiles.length === 0) { alert('Please select at least one candidate CV.'); return; }
+
+  gtag('event', 'hr_analyse_click', { event_category: 'engagement', candidate_count: hrFiles.length });
+
+  const btn = document.getElementById('hr-analyse-btn');
+  const note = document.getElementById('progress-note');
+  const resultsEl = document.getElementById('results');
+  btn.disabled = true;
+  note.style.display = 'block';
+  resultsEl.style.display = 'none';
+  resultsEl.innerHTML = '';
+
+  const results = [];
+
+  for (let i = 0; i < hrFiles.length; i++) {
+    const file = hrFiles[i];
+    btn.innerHTML = '<div class="spinner"></div><span>Analysing ' + (i + 1) + ' of ' + hrFiles.length + '...</span>';
+    note.textContent = file.name;
+
+    try {
+      const base64 = await fileToBase64(file);
+      const prompt = 'You are an expert recruiter. Analyse this candidate\\'s CV against the job description below. Return ONLY a raw JSON object — no markdown, no backticks, no explanation.\\n\\nJOB DESCRIPTION:\\n' + jobSpec.substring(0, 1500) + '\\n\\nReturn this exact JSON:\\n{\\n  "candidate_name": "<full name extracted from the CV, or \\'Unknown Candidate\\' if not found>",\\n  "match_score": <number 0-100, honest assessment against this specific job>,\\n  "verdict": "<one specific sentence on their overall fit>",\\n  "strengths": ["<up to 4 relevant strengths for this role>"],\\n  "gaps": ["<up to 4 things missing or weak for this role>"]\\n}';
+
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, fileBase64: base64, fileType: 'pdf' })
+      });
+      const data = await res.json();
+      if (!data.text) throw new Error(data.error || 'No response');
+
+      const clean = data.text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      results.push({ ...parsed, fileName: file.name, error: false });
+    } catch (e) {
+      results.push({ fileName: file.name, error: true, candidate_name: file.name });
+    }
+  }
+
+  results.sort((a, b) => (b.match_score || 0) - (a.match_score || 0));
+  renderResults(results);
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>✦ Analyse Candidates</span>';
+  note.style.display = 'none';
+}
+
+function renderResults(results) {
+  const el = document.getElementById('results');
+  el.style.display = 'flex';
+
+  el.innerHTML = results.map((r, i) => {
+    if (r.error) {
+      return '<div class="candidate-card"><div class="rank-badge">—</div><div class="candidate-body"><div class="candidate-name">' + escapeHtml(r.fileName) + '</div><div class="file-error">Could not analyse this file — please check it\\'s a valid PDF and try again.</div></div></div>';
+    }
+    const score = Math.min(100, Math.max(0, r.match_score || 0));
+    const scoreClass = score >= 70 ? 'score-high' : score >= 45 ? 'score-mid' : 'score-low';
+    const strengths = (r.strengths || []).map(s => '<span class="tag tag-strength">' + escapeHtml(s) + '</span>').join('');
+    const gaps = (r.gaps || []).map(g => '<span class="tag tag-gap">' + escapeHtml(g) + '</span>').join('');
+    return '<div class="candidate-card">' +
+      '<div class="rank-badge">#' + (i + 1) + '</div>' +
+      '<div class="candidate-body">' +
+        '<div class="candidate-top"><div class="candidate-name">' + escapeHtml(r.candidate_name || r.fileName) + '</div><div class="score-pill ' + scoreClass + '">' + score + '% match</div></div>' +
+        '<div class="verdict-text">' + escapeHtml(r.verdict || '') + '</div>' +
+        '<div class="tag-row">' + strengths + gaps + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
