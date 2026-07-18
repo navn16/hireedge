@@ -183,7 +183,19 @@ async function analyseCandidates() {
 
     try {
       const base64 = await fileToBase64(file);
-      const prompt = 'You are an expert recruiter. Analyse this candidate\\'s CV against the job description below. Return ONLY a raw JSON object — no markdown, no backticks, no explanation.\\n\\nJOB DESCRIPTION:\\n' + jobSpec.substring(0, 1500) + '\\n\\nReturn this exact JSON:\\n{\\n  "candidate_name": "<full name extracted from the CV, or \\'Unknown Candidate\\' if not found>",\\n  "match_score": <number 0-100, honest assessment against this specific job>,\\n  "verdict": "<one specific sentence on their overall fit>",\\n  "strengths": ["<up to 4 relevant strengths for this role>"],\\n  "gaps": ["<up to 4 things missing or weak for this role>"]\\n}';
+      const prompt = `You are an expert recruiter. Analyse this candidate's CV against the job description below. Return ONLY a raw JSON object — no markdown, no backticks, no explanation.
+
+JOB DESCRIPTION:
+${jobSpec.substring(0, 1500)}
+
+Return this exact JSON:
+{
+  "candidate_name": "<full name extracted from the CV, or 'Unknown Candidate' if not found>",
+  "match_score": <number 0-100, honest assessment against this specific job>,
+  "verdict": "<one specific sentence on their overall fit>",
+  "strengths": ["<up to 4 relevant strengths for this role>"],
+  "gaps": ["<up to 4 things missing or weak for this role>"]
+}`;
 
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -215,7 +227,7 @@ function renderResults(results) {
 
   el.innerHTML = results.map((r, i) => {
     if (r.error) {
-      return '<div class="candidate-card"><div class="rank-badge">—</div><div class="candidate-body"><div class="candidate-name">' + escapeHtml(r.fileName) + '</div><div class="file-error">Could not analyse this file — please check it\\'s a valid PDF and try again.</div></div></div>';
+      return '<div class="candidate-card"><div class="rank-badge">—</div><div class="candidate-body"><div class="candidate-name">' + escapeHtml(r.fileName) + '</div><div class="file-error">Could not analyse this file — please check it is a valid PDF and try again.</div></div></div>';
     }
     const score = Math.min(100, Math.max(0, r.match_score || 0));
     const scoreClass = score >= 70 ? 'score-high' : score >= 45 ? 'score-mid' : 'score-low';
