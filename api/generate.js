@@ -1,6 +1,15 @@
 const Anthropic = require('@anthropic-ai/sdk');
 
+const ALLOWED_ORIGINS = ['https://hireedge-ai.com', 'https://hr.hireedge-ai.com'];
+
 module.exports = async function handler(req, res) {
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
