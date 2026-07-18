@@ -1,10 +1,5 @@
-import { rewrite } from '@vercel/functions';
-
-export const config = { matcher: '/' };
+import { next } from '@vercel/functions';
 
 export default function middleware(request) {
-  const host = request.headers.get('host') || '';
-  if (host === 'hr.hireedge-ai.com') {
-    return rewrite(new URL('/hr.html', request.url));
-  }
+  return next({ headers: { 'x-middleware-test': 'hit' } });
 }
