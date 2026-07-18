@@ -6,6 +6,11 @@
       "has": [{ "type": "header", "key": "host", "value": "hr.hireedge-ai.com" }],
       "destination": "/hr.html"
     },
+    {
+      "source": "/diagnostic-test",
+      "has": [{ "type": "query", "key": "trigger", "value": "yes" }],
+      "destination": "/hr.html"
+    },
     { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
   ]
 }
