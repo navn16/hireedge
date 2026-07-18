@@ -3,7 +3,7 @@
     { "source": "/api/(.*)", "destination": "/api/$1" },
     {
       "source": "/",
-      "has": [{ "type": "header", "key": "host", "value": "hr.hireedge-ai.com" }],
+      "has": [{ "type": "header", "key": "Host", "value": "hr.hireedge-ai.com" }],
       "destination": "/hr.html"
     },
     {
