@@ -330,9 +330,9 @@ function updateUsageDisplay() {
   }
   const freeLeft = Math.max(0, CONFIG.FREE_LIMIT - getHrUsageCount());
   if (freeLeft > 0) {
-    el.textContent = freeLeft + ' free candidate analysis' + (freeLeft !== 1 ? 'es' : '') + ' remaining — no sign-up needed';
+    el.textContent = freeLeft + ' free candidate ' + (freeLeft !== 1 ? 'analyses' : 'analysis') + ' remaining — no sign-up needed';
   } else if (currentSingleCredits > 0) {
-    el.textContent = currentSingleCredits + ' paid analysis' + (currentSingleCredits !== 1 ? 'es' : '') + ' remaining';
+    el.textContent = currentSingleCredits + ' paid ' + (currentSingleCredits !== 1 ? 'analyses' : 'analysis') + ' remaining';
   } else {
     el.textContent = 'Free analyses used — sign in or get a pack to continue';
   }
