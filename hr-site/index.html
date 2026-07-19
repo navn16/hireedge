@@ -70,21 +70,27 @@
   #progress-note { text-align: center; font-size: 0.85rem; color: var(--muted); margin-top: 14px; display: none; }
 
   #results { margin-top: 40px; display: none; flex-direction: column; gap: 16px; }
-  .candidate-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: flex-start; }
+  .candidate-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); display: flex; gap: 24px; align-items: flex-start; }
   .rank-badge { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.4rem; color: var(--muted); min-width: 34px; }
-  .candidate-body { flex: 1; }
-  .candidate-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
-  .candidate-name { font-weight: 500; font-size: 1.05rem; color: var(--navy); }
-  .score-pill { font-size: 0.78rem; font-weight: 600; padding: 4px 14px; border-radius: 100px; }
+  .candidate-left { flex: 1 1 40%; min-width: 180px; }
+  .candidate-name { font-weight: 500; font-size: 1.05rem; color: var(--navy); margin-bottom: 8px; }
+  .score-pill { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 4px 14px; border-radius: 100px; margin-bottom: 10px; }
   .score-high { background: rgba(30,158,94,0.12); color: #1e9e5e; }
   .score-mid { background: rgba(212,140,30,0.12); color: var(--amber2); }
   .score-low { background: rgba(192,57,43,0.1); color: var(--red); }
-  .verdict-text { font-size: 0.88rem; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag { font-size: 0.72rem; padding: 3px 10px; border-radius: 100px; font-weight: 500; }
-  .tag-strength { background: rgba(30,158,94,0.1); color: #1e9e5e; }
-  .tag-gap { background: rgba(192,57,43,0.08); color: var(--red); }
+  .verdict-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+  .candidate-right { flex: 1 1 55%; border-left: 1px solid var(--border); padding-left: 24px; }
+  .col-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .col-label-strength { color: #1e9e5e; }
+  .col-label-gap { color: var(--red); margin-top: 12px; }
+  .tag-list { list-style: none; padding: 0; margin: 0; }
+  .tag-list li { font-size: 0.85rem; color: var(--text); padding: 2px 0; }
+  .tag-list li::before { content: '• '; color: var(--muted); }
   .file-error { font-size: 0.8rem; color: var(--red); padding: 10px 0; }
+  @media (max-width: 560px) {
+    .candidate-card { flex-wrap: wrap; }
+    .candidate-right { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 4px; flex: 1 1 100%; }
+  }
 
   footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; color: var(--muted); font-size: 0.82rem; }
   footer a { color: var(--muted); }
@@ -555,18 +561,24 @@ function renderResults(results) {
 
   el.innerHTML = results.map((r, i) => {
     if (r.error) {
-      return '<div class="candidate-card"><div class="rank-badge">—</div><div class="candidate-body"><div class="candidate-name">' + escapeHtml(r.fileName) + '</div><div class="file-error">Could not analyse this file — please check it is a valid PDF and try again.</div></div></div>';
+      return '<div class="candidate-card"><div class="rank-badge">—</div><div class="candidate-left"><div class="candidate-name">' + escapeHtml(r.fileName) + '</div><div class="file-error">Could not analyse this file — please check it is a valid PDF and try again.</div></div></div>';
     }
     const score = Math.min(100, Math.max(0, r.match_score || 0));
     const scoreClass = score >= 70 ? 'score-high' : score >= 45 ? 'score-mid' : 'score-low';
-    const strengths = (r.strengths || []).map(s => '<span class="tag tag-strength">' + escapeHtml(s) + '</span>').join('');
-    const gaps = (r.gaps || []).map(g => '<span class="tag tag-gap">' + escapeHtml(g) + '</span>').join('');
+    const strengths = (r.strengths || []).map(s => '<li>' + escapeHtml(s) + '</li>').join('');
+    const gaps = (r.gaps || []).map(g => '<li>' + escapeHtml(g) + '</li>').join('');
     return '<div class="candidate-card">' +
       '<div class="rank-badge">#' + (i + 1) + '</div>' +
-      '<div class="candidate-body">' +
-        '<div class="candidate-top"><div class="candidate-name">' + escapeHtml(r.candidate_name || r.fileName) + '</div><div class="score-pill ' + scoreClass + '">' + score + '% match</div></div>' +
+      '<div class="candidate-left">' +
+        '<div class="candidate-name">' + escapeHtml(r.candidate_name || r.fileName) + '</div>' +
+        '<div class="score-pill ' + scoreClass + '">' + score + '% match</div>' +
         '<div class="verdict-text">' + escapeHtml(r.verdict || '') + '</div>' +
-        '<div class="tag-row">' + strengths + gaps + '</div>' +
+      '</div>' +
+      '<div class="candidate-right">' +
+        '<div class="col-label col-label-strength">Strengths</div>' +
+        '<ul class="tag-list">' + strengths + '</ul>' +
+        '<div class="col-label col-label-gap">Gaps</div>' +
+        '<ul class="tag-list">' + gaps + '</ul>' +
       '</div>' +
     '</div>';
   }).join('');
