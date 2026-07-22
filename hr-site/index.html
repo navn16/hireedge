@@ -173,6 +173,9 @@
     <div id="progress-note"></div>
   </div>
 
+  <div id="example-label" style="text-align:center;margin-top:40px;margin-bottom:-24px">
+    <div style="display:inline-block;font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);background:var(--surface2);padding:6px 16px;border-radius:100px">Example result — try it yourself above</div>
+  </div>
   <div id="results"></div>
 </div>
 
@@ -441,7 +444,15 @@ function showToast(msg) {
   t._timeout = setTimeout(() => { t.style.opacity = '0'; }, 3500);
 }
 
-window.addEventListener('load', initAuth);
+function showExampleResults() {
+  renderResults([
+    { candidate_name: 'Emma Carter', match_score: 92, verdict: 'Strong technical match with direct experience in the exact stack listed.', strengths: ['Product Strategy', 'Market Analysis', 'Leadership'], gaps: ['Experience in AI/ML'], error: false },
+    { candidate_name: 'Daniel Weiss', match_score: 78, verdict: 'Solid product background with room to grow into full ownership.', strengths: ['Product Management', 'User Research'], gaps: ['Leadership Experience', 'Stakeholder Management'], error: false },
+    { candidate_name: 'Sofia Martinez', match_score: 65, verdict: 'Decent analytical foundation but missing core product strategy exposure.', strengths: ['Data Analysis', 'Problem Solving'], gaps: ['Product Strategy', 'Market Research'], error: false }
+  ]);
+}
+
+window.addEventListener('load', () => { initAuth(); showExampleResults(); });
 
 let hrFiles = [];
 
@@ -481,6 +492,8 @@ async function analyseCandidates() {
   note.style.display = 'block';
   resultsEl.style.display = 'none';
   resultsEl.innerHTML = '';
+  const exampleLabel = document.getElementById('example-label');
+  if (exampleLabel) exampleLabel.remove();
 
   const results = [];
   let blockedCount = 0;
